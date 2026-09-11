@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Game Library</title>
+
+<style>
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        font-family: Arial, Helvetica, sans-serif;
+        background:
+            radial-gradient(circle at 20% 10%, #202b4a 0, transparent 35%),
+            radial-gradient(circle at 80% 80%, #301b45 0, transparent 35%),
+            #090b12;
+        color: white;
+        min-height: 100vh;
+    }
+
+    /* HEADER */
+    header {
+        padding: 45px 7% 30px;
+        text-align: center;
+    }
+
+    header h1 {
+        font-size: clamp(36px, 6vw, 68px);
+        font-weight: 900;
+        letter-spacing: -3px;
+        background: linear-gradient(90deg, #fff, #8ea5ff, #d08cff);
+        -webkit-background-clip: text;
+        color: transparent;
+        margin-bottom: 10px;
+    }
+
+    header p {
+        color: #9299ad;
+        font-size: 16px;
+    }
+
+    /* SEARCH */
+    .controls {
+        max-width: 1200px;
+        margin: 0 auto 35px;
+        padding: 0 25px;
+        display: flex;
+        justify-content: center;
+    }
+
+    #search {
+        width: min(600px, 100%);
+        padding: 15px 20px;
+        border: 1px solid #30374b;
+        border-radius: 14px;
+        background: rgba(15, 18, 28, 0.9);
+        color: white;
+        font-size: 16px;
+        outline: none;
+        transition: .2s;
+    }
+
+    #search:focus {
+        border-color: #7186ff;
+        box-shadow: 0 0 20px rgba(113, 134, 255, .15);
+    }
+
+    /* GRID */
+    .games {
+        width: min(1400px, 92%);
+        margin: auto;
+        padding-bottom: 70px;
+
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+        gap: 25px;
+    }
+
+    /* CARD */
+    .game-card {
+        background: #111522;
+        border: 1px solid #252b3b;
+        border-radius: 18px;
+        overflow: hidden;
+        cursor: pointer;
+        transition:
+            transform .25s ease,
+            border-color .25s ease,
+            box-shadow .25s ease;
+    }
+
+    .game-card:hover {
+        transform: translateY(-7px);
+        border-color: #596cff;
+        box-shadow: 0 18px 45px rgba(0,0,0,.45);
+    }
+
+    /* THUMBNAIL */
+    .thumbnail {
+        height: 175px;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .thumbnail::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+            to top,
+            rgba(0,0,0,.55),
+            transparent 60%
+        );
+    }
+
+    .thumb-title {
+        position: relative;
+        z-index: 2;
+        font-size: 31px;
+        font-weight: 900;
+        text-align: center;
+        letter-spacing: -1px;
+        text-shadow: 0 4px 15px rgba(0,0,0,.8);
+        padding: 15px;
+    }
+
+    /* INDIVIDUAL THUMBNAILS */
+
+    .half-life {
+        background:
+            radial-gradient(circle at 65% 35%, #ff9b32 0 4%, transparent 5%),
+            linear-gradient(135deg, #14252d, #283d42 45%, #10151b);
+    }
+
+    .half-life .thumb-title {
+        color: #ff8b28;
+        text-shadow:
+            0 0 12px #ff641d,
+            0 4px 15px #000;
+    }
+
+    .slope {
+        background:
+            linear-gradient(145deg, transparent 45%, rgba(255,255,255,.15) 46% 47%, transparent 48%),
+            repeating-linear-gradient(
+                150deg,
+                #151d35 0 35px,
+                #202c4d 35px 70px
+            );
+    }
+
+    .slope .thumb-title {
+        color: #ff4f58;
+        transform: skew(-5deg);
+        font-size: 42px;
+    }
+
+    .geometry {
+        background:
+            linear-gradient(135deg, #0a1630, #152c61 50%, #070c1d);
+    }
+
+    .geometry::before {
+        content: "◆";
+        position: absolute;
+        font-size: 95px;
+        color: #54e6ff;
+        filter: drop-shadow(0 0 15px #00d9ff);
+        transform: rotate(45deg);
+    }
+
+    .geometry .thumb-title {
+        margin-top: 100px;
+        font-size: 24px;
+        color: white;
+    }
+
+    .midnight {
+        background:
+            radial-gradient(circle at 50% 35%, #53638e, transparent 12%),
+            linear-gradient(#080b16 0%, #121a2e 55%, #080a10 100%);
+    }
+
+    .midnight::before {
+        content: "🌙";
+        position: absolute;
+        top: 20px;
+        font-size: 55px;
+        filter: grayscale(.2);
+    }
+
+    .midnight .thumb-title {
+        margin-top: 100px;
+        color: #d6ddff;
+    }
+
+    .stick {
+        background:
+            linear-gradient(155deg, #192b1c, #416c35 50%, #142217);
+    }
+
+    .stick::before {
+        content: "";
+        width: 130px;
+        height: 9px;
+        position: absolute;
+        background: #ddd;
+        transform: rotate(-35deg);
+        box-shadow: 0 0 10px rgba(255,255,255,.4);
+    }
+
+    .stick .thumb-title {
+        margin-top: 95px;
+        font-size: 25px;
+    }
+
+    .pint {
+        background:
+            radial-gradient(circle at 30% 20%, #ffd95e, transparent 20%),
+            linear-gradient(135deg, #302019, #a75820 55%, #24130e);
+    }
+
+    .pint::before {
+        content: "PINT";
+        position: absolute;
+        font-size: 75px;
+        font-weight: 900;
+        color: rgba(255,255,255,.09);
+    }
+
+    .pint .thumb-title {
+        color: #fff3ce;
+    }
+
+    /* CARD INFORMATION */
+
+    .info {
+        padding: 18px;
+    }
+
+    .info h2 {
+        font-size: 20px;
+        margin-bottom: 7px;
+    }
+
+    .info p {
+        color: #858ca0;
+        font-size: 14px;
+        line-height: 1.5;
+    }
+
+    .play {
+        display: inline-block;
+        margin-top: 15px;
+        padding: 9px 15px;
+        border-radius: 9px;
+        background: #202842;
+        color: #aebaff;
+        font-size: 13px;
+        font-weight: bold;
+    }
+
+    .game-card:hover .play {
+        background: #586cff;
+        color: white;
+    }
+
+    /* MODAL */
+
+    .modal {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,.82);
+        backdrop-filter: blur(8px);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        padding: 25px;
+    }
+
+    .modal.active {
+        display: flex;
+    }
+
+    .modal-box {
+        width: min(1400px, 96vw);
+        height: min(850px, 92vh);
+        background: #0d1019;
+        border: 1px solid #30384d;
+        border-radius: 18px;
+        overflow: hidden;
+        box-shadow: 0 30px 100px rgba(0,0,0,.7);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .modal-header {
+        min-height: 58px;
+        padding: 12px 17px;
+        background: #151a27;
+        border-bottom: 1px solid #292f40;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    #modalTitle {
+        font-size: 17px;
+        font-weight: bold;
+    }
+
+    .close {
+        width: 38px;
+        height: 38px;
+        border: none;
+        border-radius: 9px;
+        background: #252b3b;
+        color: white;
+        font-size: 24px;
+        cursor: pointer;
+        transition: .2s;
+    }
+
+    .close:hover {
+        background: #e34848;
+    }
+
+    iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+        background: black;
+        flex: 1;
+    }
+
+    /* MOBILE */
+
+    @media (max-width: 600px) {
+        header {
+            padding-top: 30px;
+        }
+
+        .games {
+            grid-template-columns: 1fr;
+            width: 90%;
+        }
+
+        .modal {
+            padding: 8px;
+        }
+
+        .modal-box {
+            width: 100%;
+            height: 96vh;
+            border-radius: 12px;
+        }
+    }
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>GAME LIBRARY</h1>
+    <p>Choose a game and launch it instantly.</p>
+</header>
+
+<div class="controls">
+    <input
+        type="text"
+        id="search"
+        placeholder="Search games..."
+        autocomplete="off"
+    >
+</div>
+
+<main class="games" id="games">
+
+    <div
+        class="game-card"
+        data-title="Half-Life 2"
+        data-url="https://rjt100.github.io/Half-Life-2/"
+    >
+        <div class="thumbnail half-life">
+            <div class="thumb-title">HALF-LIFE 2</div>
+        </div>
+
+        <div class="info">
+            <h2>Half-Life 2</h2>
+            <p>Play the browser version of the classic sci-fi FPS.</p>
+            <span class="play">▶ PLAY</span>
+        </div>
+    </div>
+
+
+    <div
+        class="game-card"
+        data-title="Slope"
+        data-url="https://slope24.vercel.app/"
+    >
+        <div class="thumbnail slope">
+            <div class="thumb-title">SLOPE</div>
+        </div>
+
+        <div class="info">
+            <h2>Slope</h2>
+            <p>Roll down the endless course and avoid the obstacles.</p>
+            <span class="play">▶ PLAY</span>
+        </div>
+    </div>
+
+
+    <div
+        class="game-card"
+        data-title="Geometry Dash"
+        data-url="https://rjt100.github.io/geometrydashdotcom/"
+    >
+        <div class="thumbnail geometry">
+            <div class="thumb-title">GEOMETRY DASH</div>
+        </div>
+
+        <div class="info">
+            <h2>Geometry Dash</h2>
+            <p>Jump, fly and dodge your way through challenging levels.</p>
+            <span class="play">▶ PLAY</span>
+        </div>
+    </div>
+
+
+    <div
+        class="game-card"
+        data-title="Shift at Midnight"
+        data-url="https://rjt100.github.io/ShiftAtMidnightPort/"
+    >
+        <div class="thumbnail midnight">
+            <div class="thumb-title">SHIFT AT MIDNIGHT</div>
+        </div>
+
+        <div class="info">
+            <h2>Shift at Midnight</h2>
+            <p>A mysterious late-night gaming experience.</p>
+            <span class="play">▶ PLAY</span>
+        </div>
+    </div>
+
+
+    <div
+        class="game-card"
+        data-title="Stick With It"
+        data-url="https://rjt100.github.io/StickWithItPort/"
+    >
+        <div class="thumbnail stick">
+            <div class="thumb-title">STICK WITH IT</div>
+        </div>
+
+        <div class="info">
+            <h2>Stick With It</h2>
+            <p>Keep your balance and make your way through the course.</p>
+            <span class="play">▶ PLAY</span>
+        </div>
+    </div>
+
+
+    <div
+        class="game-card"
+        data-title="PINT"
+        data-url="https://rjt100.github.io/PINTPort/"
+    >
+        <div class="thumbnail pint">
+            <div class="thumb-title">PINT</div>
+        </div>
+
+        <div class="info">
+            <h2>PINT</h2>
+            <p>Launch the browser port and start playing.</p>
+            <span class="play">▶ PLAY</span>
+        </div>
+    </div>
+
+</main>
+
+
+<!-- GAME POPUP -->
+
+<div class="modal" id="modal">
+
+    <div class="modal-box">
+
+        <div class="modal-header">
+            <span id="modalTitle">Game</span>
+
+            <button class="close" id="closeButton">
+                ×
+            </button>
+        </div>
+
+        <iframe
+            id="gameFrame"
+            src=""
+            allow="fullscreen; autoplay; gamepad"
+            allowfullscreen>
+        </iframe>
+
+    </div>
+
+</div>
+
+
+<script>
+
+const cards = document.querySelectorAll(".game-card");
+const modal = document.getElementById("modal");
+const frame = document.getElementById("gameFrame");
+const modalTitle = document.getElementById("modalTitle");
+const closeButton = document.getElementById("closeButton");
+const search = document.getElementById("search");
+
+
+/* OPEN GAME */
+
+cards.forEach(card => {
+
+    card.addEventListener("click", () => {
+
+        const url = card.dataset.url;
+        const title = card.dataset.title;
+
+        modalTitle.textContent = title;
+
+        frame.src = url;
+
+        modal.classList.add("active");
+
+        document.body.style.overflow = "hidden";
+
+    });
+
+});
+
+
+/* CLOSE GAME */
+
+function closeGame() {
+
+    modal.classList.remove("active");
+
+    // Clearing the iframe also stops the game/audio.
+    frame.src = "";
+
+    document.body.style.overflow = "";
+
+}
+
+
+closeButton.addEventListener("click", closeGame);
+
+
+/* CLICK OUTSIDE */
+
+modal.addEventListener("click", event => {
+
+    if (event.target === modal) {
+        closeGame();
+    }
+
+});
+
+
+/* ESCAPE KEY */
+
+document.addEventListener("keydown", event => {
+
+    if (event.key === "Escape" && modal.classList.contains("active")) {
+        closeGame();
+    }
+
+});
+
+
+/* SEARCH */
+
+search.addEventListener("input", () => {
+
+    const query = search.value.toLowerCase().trim();
+
+    cards.forEach(card => {
+
+        const title = card.dataset.title.toLowerCase();
+
+        if (title.includes(query)) {
+            card.style.display = "";
+        } else {
+            card.style.display = "none";
+        }
+
+    });
+
+});
+
+</script>
+
+</body>
+</html>
